@@ -8,17 +8,17 @@ import ipaddress
 import wifi
 import socketpool
 
-
-led = neopixel.NeoPixel(board.NEOPIXEL, 1)
+from adafruit_httpserver import Server, Request, Response
 
 print("Creating AP")
 
 wifi.radio.start_ap(ssid=os.getenv('CIRCUITPY_AP_SSID'), password=os.getenv('CIRCUITPY_AP_PASSWORD'))
 
-while True:
-    led.fill((255, 0, 0))
-    time.sleep(0.5)
-    led.fill((0, 255, 0))
-    time.sleep(0.5)
-    led.fill((0, 0, 255))
-    time.sleep(0.5)
+pool = socketpool.SocketPool(wifi.radio)
+server = Server(pool)
+print(wifi.radio.ipv4_address_ap)
+@server.route("/")
+def base(request: Request):
+    print("request received")
+
+server.serve_forever(str(wifi.radio.ipv4_address_ap), 5000)
