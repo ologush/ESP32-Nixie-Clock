@@ -7,8 +7,11 @@ import os
 import ipaddress
 import wifi
 import socketpool
+import busio
 
-from adafruit_httpserver import Server, Request, Response
+
+from adafruit_httpserver import Server, Request, Response, Route
+from api_routes import setTime
 
 print("Creating AP")
 
@@ -17,6 +20,11 @@ wifi.radio.start_ap(ssid=os.getenv('CIRCUITPY_AP_SSID'), password=os.getenv('CIR
 pool = socketpool.SocketPool(wifi.radio)
 server = Server(pool)
 print(wifi.radio.ipv4_address_ap)
+
+server.add_routes([
+    Route("/setTime", "POST", setTime),
+])
+
 @server.route("/")
 def base(request: Request):
     print("request received")
